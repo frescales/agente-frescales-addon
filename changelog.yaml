@@ -1,0 +1,10 @@
+# agente_frescales/changelog.yaml
+
+1.0.0:
+  date: 2024-06-01
+  changes:
+    - Versión estable inicial del Agente FRESCALES
+    - Control de switches, luces, scripts, escenas
+    - Swagger UI disponible en /docs
+    - Soporte para input_number, input_text, input_boolean
+    - Control total de Home Assistant vía API local
