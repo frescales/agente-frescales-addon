@@ -1,0 +1,20 @@
+name: Agente FRESCALES
+version: "1.0.0"
+slug: agente_frescales
+description: Agente IA local para control agrícola inteligente
+startup: services
+boot: auto
+init: false
+ports:
+  8000/tcp: 8000
+arch:
+  - amd64
+  - aarch64
+  - armv7
+ingress: false  # 👈 Desactivas ingreso
+panel_icon: mdi:robot
+homeassistant_api: true
+host_network: true
+webui: "http://[HOST]:[PORT:8000]/docs"  # 👈 Esto habilita el botón azul hacia /docs
+options: {}
+schema: {}
