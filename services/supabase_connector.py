@@ -1,4 +1,6 @@
 from supabase import create_client
+from dotenv import load_dotenv
+load_dotenv()
 from os import getenv
 from datetime import date
 from utils.fecha import primer_dia_mes, hoy

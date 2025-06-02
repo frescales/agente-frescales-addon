@@ -1,25 +1,37 @@
-from fastapi import FastAPI
-from dotenv import load_dotenv
 import os
+from openai import OpenAI
+from dotenv import load_dotenv
+from ai_agent.registry import get_tools
 
-# Cargar variables de entorno
 load_dotenv()
 
-# Crear instancia de FastAPI
-app = FastAPI(title="Agente FRESCALES")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Importar routers
-from routers import produccion, insumos, enfermedades, reportes, precios, sensor
+def run_agent(prompt: str):
+    tools = get_tools()
 
-# Incluir routers
-app.include_router(produccion.router, prefix="/produccion", tags=["Producción"])
-app.include_router(insumos.router, prefix="/insumos", tags=["Insumos"])
-app.include_router(enfermedades.router, prefix="/enfermedades", tags=["Enfermedades"])
-app.include_router(reportes.router, prefix="/reportes", tags=["Reportes"])
-app.include_router(precios.router, prefix="/precios", tags=["Precios"])
-app.include_router(sensor.router, prefix="/sensor", tags=["Sensores"])
+    # Convertimos los objetos FunctionDefinition en el formato requerido por OpenAI
+    functions = [{"type": tool.type, "function": tool.function} for tool in tools]
 
-# Ruta raíz
-@app.get("/")
-def root():
-    return {"message": "Agente FRESCALES activo 🧠🍓"}
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "Eres un asistente experto en producción de fresas."},
+            {"role": "user", "content": prompt}
+        ],
+        tools=functions,
+        tool_choice="auto"
+    )
+
+    msg = response.choices[0].message
+
+    if msg.tool_calls:
+        fn_name = msg.tool_calls[0].function.name
+        fn_args = eval(msg.tool_calls[0].function.arguments)
+
+        # Aquí buscamos el tool por nombre
+        tool = next((t for t in tools if t.function["name"] == fn_name), None)
+        if tool:
+            return tool.code(**fn_args)
+
+    return msg.content

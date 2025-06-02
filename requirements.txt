@@ -5,4 +5,5 @@ python-dotenv
 influxdb
 requests
 pandas
-
+openai
+openai>=1.0.0
